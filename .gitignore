@@ -1,0 +1,10 @@
+docker_env/
+__pycache__/
+dataset/
+*.csv
+.env
+.vscode/
+check.py
+*.pth
+cnn_model.pth 
+"cnn_model.pth" 
