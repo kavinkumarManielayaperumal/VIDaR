@@ -5,38 +5,42 @@
 
 from PIL import Image # this pillow library is used to work with the images 
 import matplotlib.pyplot as plt 
- 
 from pycocotools.coco import COCO
-import os 
-
-# this is the annotation file of the coco dataset 
-annotation_file=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\annotations\instances_train2017.json"
-coco=COCO(annotation_file) # this will load and map the annotation file to the coco object 
 
 
 
-image_info= coco.loadImgs(36)[0]
 
-print(image_info)
-
-image_path=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\train2017\000000000036.jpg" 
-image=Image.open(image_path)
-
-# Get the annotations of the image
-image_id=image_info['id'] # this will get the id of the image of paticular the image id 36
-
-annotations=coco.getAnnIds(imgIds=image_id) # this getAnnIDs will map the image id to the annotation id 
-
-annotations=coco.loadAnns(annotations) # this will load the annotations of the image
-
-fig, ax = plt.subplots(1)
-ax.imshow(image)
-
-for ann in annotations:# this will loop through the annoatation , if annoatation is more than one , then we are looking bbox key word in the annotation
-    bbox=ann['bbox'] # mapping the bbox key word to the bbox
-    x,y , width, height=bbox
-    rect=plt.Rectangle((x,y),width,height,linewidth=1, edgecolor='r')
-    ax.add_patch(rect) # add_patch is used to add the rectangle to the image 
+def image_viewer(annotation_file,image_path):
+    coco=COCO(annotation_file) # this will load and map the annotation file to the coco object 
+    image_info=coco.loadImgs(36)[0]# this will load the image of the image id36 
+    print(image_info) # this will print the image info of the image id 36
     
-plt.axis('off')
-plt.show()
+    image=Image.open(image_path)
+    fig,(ax1,ax2)=plt.subplots(1,2)# this will create the two axis for the image
+    
+    image_id=image_info['id'] # this will get the id of the image of paticulat the image id 36
+    annotations_id=coco.getAnnIds(imgIds=image_id) # this getAnnIDs will map the image id to the annotation id
+    annotation_load=coco.loadAnns(annotations_id) # this will load the annotations of the image
+    for ann in annotation_load:
+        bbox=ann['bbox']
+        x,y,width,height=bbox
+        rect=plt.Rectangle((x,y),width,height,linewidth=2,edgecolor='r',facecolor='none')
+        ax2.add_patch(rect)
+    
+    fig.suptitle("differece between the bounding box",fontsize=20)
+    ax1.imshow(image)
+    ax1.set_title("Original image")
+    ax1.axis('off')
+    
+    ax2.imshow(image)
+    ax2.set_title("Annotated image")
+    ax2.axis('off')
+    
+    plt.show()
+    
+if __name__=="__main__":
+    
+    annotation_file=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\annotations\instances_train2017.json"
+    image_path=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\train2017\000000000036.jpg"
+    
+    image_viewer(annotation_file,image_path)
