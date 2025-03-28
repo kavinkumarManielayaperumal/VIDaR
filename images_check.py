@@ -16,6 +16,7 @@ imagecroped=image.crop((150,60,100+400,150+150))
 
 plt.subplot(1,2,2)
 plt.imshow(image)
+plt.gca().add_patch(plt.Rectangle((100,50),100,50,linewidth=1, edgecolor='r', facecolor='none'))
 plt.title("Original Image")
 plt.axis("off")
 
