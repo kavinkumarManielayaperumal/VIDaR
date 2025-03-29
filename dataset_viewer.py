@@ -23,8 +23,11 @@ def image_viewer(annotation_file,image_path):
     annotation_load=coco.loadAnns(annotations_id) # this will load the annotations of the image
     for ann in annotation_load:
         bbox=ann['bbox']
+        category_id=ann['category_id']
+        category_name=coco.loadCats([category_id])[0]['name']# its is like this category_data = [{'id': 3, 'name': 'cat'}] so its in list format so we have to get the first element of the list and then get the name of the category
         x,y,width,height=bbox
         rect=plt.Rectangle((x,y),width,height,linewidth=2,edgecolor='r',facecolor='none')
+        ax2.text(x,y,f"{category_id},{category_name}",fontsize=10,color='green')
         ax2.add_patch(rect)
     
     fig.suptitle("differece between the bounding box",fontsize=20)
