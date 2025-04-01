@@ -1,11 +1,13 @@
+from pycocotools.coco import COCO
+
 
 # the coco dataset have 30000 images so even one image have to region, like its have the bounding box and the segmentation of the object in the image , so the annotation of the image is very complex 
 # so we will be using the pycocotools to work with the coco dataset 
 
 
 from PIL import Image # this pillow library is used to work with the images 
-import matplotlib.pyplot as plt 
-from pycocotools.coco import COCO
+import matplotlib.pyplot as plt
+
 
 
 
@@ -28,7 +30,7 @@ def image_viewer(annotation_file,image_path):
         x,y,width,height=bbox
         rect=plt.Rectangle((x,y),width,height,linewidth=2,edgecolor='r',facecolor='none')
         ax2.text(x,y,f"{category_id},{category_name}",fontsize=10,color='green')
-        ax2.add_patch(rect)
+        ax2.add_patch(rect) 
     
     fig.suptitle("differece between the bounding box",fontsize=20)
     ax1.imshow(image)
