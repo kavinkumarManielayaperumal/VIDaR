@@ -15,11 +15,10 @@ def extract_image_and_bounding_box(annotation_file, image_dir):
         image_path=os.path.join(image_dir, file_name)
         
         # load the image in PIL format
-        image=Image.open(image_path)
-        transform=T.ToTensor()# this will convert the image to tensor format (c,h,w), exactly cifar10 dataset format 
-        image_tensor=transform(image)# this will convert the image to tensor format (c,h,w) , where c is the channel, h is the height and w is the width of the image
+        input_image=Image.open(image_path)
+        input_image=input_image.convert("RGB")# convert the image to RGB format
         
-        # this is important because this is the input for the model , like the model will take the image in this format
+        
         
         # now we will get the annotations of the image 
         annotation_file_id=coco.getAnnIds(imgIds=image_id)
@@ -40,7 +39,7 @@ def extract_image_and_bounding_box(annotation_file, image_dir):
         box_tensor=torch.tensor(box,dtype=torch.float32)
         label_tensor=torch.tensor(label,dtype=torch.int64)
         image_id=torch.tensor(image_id,dtype=torch.int64)
-    return image_tensor,box_tensor,label_tensor,image_id
+    return input_image,box_tensor,label_tensor,image_id
 
 
 
@@ -49,8 +48,8 @@ if __name__ == "__main__":
     annotation_file=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\annotations\instances_train2017.json"
     image_dir=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\train2017"
     
-    image_tensor,box_tensor,label_tensor,image_id=extract_image_and_bounding_box(annotation_file, image_dir)
-    for i in range(len(image_tensor)):
-        print(f"Image ID: {image_id[i]}, Image Tensor: {image_tensor[i]}, Bounding Box: {box_tensor[i]}, Label: {label_tensor[i]}")
+    input_image,box_tensor,label_tensor,image_id=extract_image_and_bounding_box(annotation_file, image_dir)
+    for i in range(len(input_image)):
+        print(f"Image ID: {image_id[i]}, Image Tensor: {input_image[i]}, Bounding Box: {box_tensor[i]}, Label: {label_tensor[i]}")
         if i==5:
             break
