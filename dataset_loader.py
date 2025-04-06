@@ -14,7 +14,7 @@ def extract_image_and_bounding_box(annotation_file, image_dir):
         file_name=image_info['file_name']
         image_path=os.path.join(image_dir, file_name)
         
-        # load the image in PIL format
+        # load the image in PIL format   
         input_image=Image.open(image_path)
         input_image=input_image.convert("RGB")# convert the image to RGB format
         
@@ -24,7 +24,7 @@ def extract_image_and_bounding_box(annotation_file, image_dir):
         annotation_file_id=coco.getAnnIds(imgIds=image_id)
         annotation_file_load=coco.loadAnns(annotation_file_id)
         
-        # now we will get the bounding box of the each annotation of the image
+        # now we will get the bounding box of the each annotation of the image 
         box=[]# we need to the bounding box of the image so that we can use it in the model
         label=[]
         for ann in annotation_file_load:
@@ -35,11 +35,8 @@ def extract_image_and_bounding_box(annotation_file, image_dir):
             box.append([x,y,width,hight])
             label.append(category_id)
             
-        # now we will convert the bounding box to tensor format
-        box_tensor=torch.tensor(box,dtype=torch.float32)
-        label_tensor=torch.tensor(label,dtype=torch.int64)
-        image_id=torch.tensor(image_id,dtype=torch.int64)
-    return input_image,box_tensor,label_tensor,image_id
+      
+    return input_image,box,label,image_id
 
 
 
