@@ -1,3 +1,6 @@
+
+# this code is used to load the dataset from the coco dataset but  the cathses the image will loading will be problematic beacuse the 30000 image loaded and stored in the memory so dont use this code 
+#this not relevant to our project
 import os
 import json
 from pycocotools.coco import COCO
