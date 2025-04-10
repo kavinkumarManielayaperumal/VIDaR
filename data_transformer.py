@@ -10,8 +10,9 @@ from pycocotools.coco import COCO
 
 # first, we need to rehape the image into comman size, then after that we will load the data into the dataloader
 
-class Resizeandnormalization:
+class ResizeAndNormalization:
     def __init__(self,image:Image.Image,box,image_size=(224,224)):
+        # here we are using the image:Image.Image which is the PIL image format
         self.image_size= image_size
         self.image,self.box=image,box
         
@@ -43,7 +44,7 @@ class cocodataset_transform(Dataset):
         self.coco= COCO(annotation_file)
         self.image_id=list(self.coco.imgs.keys())
         self.image_dir=image_dir
-        self.transform=transform if transform else T.ToTensors()
+        self.transform=transform if transform else T.ToTensor()
         
     def __len__(self):
         return len(self.image_id)
@@ -71,7 +72,8 @@ class cocodataset_transform(Dataset):
             x,y,width,height=bbox
             box.append([x,y,width,height])
             label.append(category_id)
-        resized_image,resized_box=Resizeandnormalization(input_image,box,image_size=(224,224))
+        resized=ResizeAndNormalization(input_image,box,image_size=(224,224))
+        resized_image,resized_box=resized()
         
         # now eveything is done we will convert the image into tensor and normalize it 
         image_tensor=self.transform(resized_image)
@@ -83,31 +85,33 @@ class cocodataset_transform(Dataset):
         # we will normalization the imagr tensor to the range of 0-1
         image_tensor= image_tensor/255.0 # here we are using the normalization ,so everything is in the range of 0-1
         
+        # we will check the shape of the image tensor and the bow tensor and the label tensor and the image id tensor
+        print(f"Image Tensor Shape:{image_tensor.shape}, Box Tensor shape:{box_tensor.shape},Label Tensor shape:{label_tensor.shape}, Image ID Tensor shape:{image_id_tensor.shape}")
+        
         return image_tensor,box_tensor,label_tensor,image_id_tensor
     
-    # now we will use the dataloader to load the data into the model 
-    def getdataloader(self,annotation_file,image_dir,batch_size=32,shuffle=True):
-        dataset_loader=cocodataset_transform(annotation_file,image_dir)
-        dataloader=DataLoader(dataset_loader,batch_size=batch_size,shuffle=shuffle)
-        return dataloader
+# now we will use the dataloader to load the data into the model 
+def getdataloader(annotation_file,image_dir,batch_size=32,shuffle=True):
+    dataset_loader=cocodataset_transform(annotation_file,image_dir)
+    dataloader=DataLoader(dataset_loader,batch_size=batch_size,shuffle=shuffle)
+    return dataloader
         
         
 if __name__== "__main__":
     
     annotation_file=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\annotations\instances_train2017.json"
-    images_path=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\train2017"
+    image_dir=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\train2017"
         
         
     image_size=(224,224)
     
-    image,box,label,image_id=extract_image_and_bounding_box(annotation_file,images_path)
-    print(image.shape,box.shape,label.shape,image_id.shape)
     
-    resized=Resizeandnormalization(image_size,image,box)
-    resized_image,resized_box=resized()
-    print(resized_image.shape,resized_box.shape)
     
-    __,__,__,__= cocodataset_transfrom()
+    # now we will use the dataloader to load the data into the  model 
+    batch_size=32
+    shuffle=True
+    dataloader=getdataloader(annotation_file,image_dir,batch_size=batch_size,shuffle=shuffle)
+    
     
     
     
