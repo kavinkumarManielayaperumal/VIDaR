@@ -2,11 +2,11 @@ import torch
 import torch.functional as F
 from torch.utils.data import Dataset,DataLoader
 import os
-from dataset_loader import extract_image_and_bounding_box
+
 from torchvision import transforms as T
 from PIL import Image
 from pycocotools.coco import COCO
-
+import matplotlib.pyplot as plt
 
 # first, we need to rehape the image into comman size, then after that we will load the data into the dataloader
 
@@ -39,7 +39,7 @@ class ResizeAndNormalization:
             new_box.append([new_x,new_y,new_widths, new_heights])
         return image_resized,new_box
 
-class cocodataset_transform(Dataset):
+class CocoDatasetTransform(Dataset):
     def __init__(self, annotation_file,image_dir, transform=None):
         self.coco= COCO(annotation_file)
         self.image_id=list(self.coco.imgs.keys())
@@ -51,8 +51,14 @@ class cocodataset_transform(Dataset):
     def __getitem__(self ,index):
         image_id=self.image_id[index]
         image_info=self.coco.loadImgs(image_id)[0]
+        # we will  check the this image info is working or not 
+        i=1
+        if i==1:
+            print(f"Image info:{image_info}")
+            i=0
         image_file_name=image_info['file_name']
         image_path=os.path.join(self.image_dir,image_file_name)
+        image_id=image_info["id"]
         
         # load the image in PIL format
         input_image=Image.open(image_path)
@@ -61,7 +67,7 @@ class cocodataset_transform(Dataset):
         #now we will get the annotations of the image
         annotation_file_id=self.coco.getAnnIds(imgIds=image_id)
         annotation_file_load=self.coco.loadAnns(annotation_file_id)
-        
+    
         # now we will get the bounding box of the each annotation of the image 
         
         box=[]
@@ -70,8 +76,17 @@ class cocodataset_transform(Dataset):
             bbox=ann['bbox']
             category_id=ann['category_id']
             x,y,width,height=bbox
+            print(f"{x,y,width,height}")
             box.append([x,y,width,height])
             label.append(category_id)
+         
+        # i want to print the  the box list and so that we can see the shape of the box shape 
+        # i think now we got the  problem with the box shape 
+        #because the box shape not same demension as the for the every image beause  every image have different number of bounding box 
+        # so we we do somthing on that 
+        print(f"Box list{box}")
+        
+        
         resized=ResizeAndNormalization(input_image,box,image_size=(224,224))
         resized_image,resized_box=resized()
         
@@ -86,13 +101,13 @@ class cocodataset_transform(Dataset):
         image_tensor= image_tensor/255.0 # here we are using the normalization ,so everything is in the range of 0-1
         
         # we will check the shape of the image tensor and the bow tensor and the label tensor and the image id tensor
-        print(f"Image Tensor Shape:{image_tensor.shape}, Box Tensor shape:{box_tensor.shape},Label Tensor shape:{label_tensor.shape}, Image ID Tensor shape:{image_id_tensor.shape}")
+        #print(f"Image Tensor Shape:{image_tensor.shape}, Box Tensor shape:{box_tensor.shape},Label Tensor shape:{label_tensor.shape}, Image ID Tensor shape:{image_id_tensor.shape}")
         
         return image_tensor,box_tensor,label_tensor,image_id_tensor
     
 # now we will use the dataloader to load the data into the model 
 def getdataloader(annotation_file,image_dir,batch_size=32,shuffle=True):
-    dataset_loader=cocodataset_transform(annotation_file,image_dir)
+    dataset_loader=CocoDatasetTransform(annotation_file,image_dir)
     dataloader=DataLoader(dataset_loader,batch_size=batch_size,shuffle=shuffle)
     return dataloader
         
@@ -111,7 +126,13 @@ if __name__== "__main__":
     batch_size=32
     shuffle=True
     dataloader=getdataloader(annotation_file,image_dir,batch_size=batch_size,shuffle=shuffle)
-    
+    for batch in dataloader:
+       images, boxes, labels, image_ids = batch
+       print(f"Images shape: {images.shape}")
+       print(f"Boxes shape: {boxes.shape}")
+       print(f"Labels shape: {labels.shape}")
+       print(f"Image IDs shape: {image_ids.shape}")
+       break  # just get the first batch
     
     
     
