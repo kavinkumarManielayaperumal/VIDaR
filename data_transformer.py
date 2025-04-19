@@ -37,7 +37,11 @@ class ResizeAndNormalization:
             new_heights=int(height*scale_y)
             
             new_box.append([new_x,new_y,new_widths, new_heights])
+            # now we will check the resized image and then bounding box in this functio 
+            print(f"Resized image size:{image_resized.size}")
+            print(f"Resized box size:{new_box}")
         return image_resized,new_box
+       
 
 class CocoDatasetTransform(Dataset):
     def __init__(self, annotation_file,image_dir, transform=None):
