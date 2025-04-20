@@ -37,7 +37,11 @@ class ResizeAndNormalization:
             new_heights=int(height*scale_y)
             
             new_box.append([new_x,new_y,new_widths, new_heights])
+            # now we will check the resized image and then bounding box in this functio 
+            print(f"Resized image size:{image_resized.size}")
+            print(f"Resized box size:{new_box}")
         return image_resized,new_box
+       
 
 class CocoDatasetTransform(Dataset):
     def __init__(self, annotation_file,image_dir, transform=None):
@@ -90,6 +94,8 @@ class CocoDatasetTransform(Dataset):
         resized=ResizeAndNormalization(input_image,box,image_size=(224,224))
         resized_image,resized_box=resized()
         
+        
+        
         # now eveything is done we will convert the image into tensor and normalize it 
         image_tensor=self.transform(resized_image)
         # here the we can use the normal tensor coversion but its in the form of (C,H,W) , so we need to use the torchvision library tensor , ToTensor()
@@ -105,10 +111,33 @@ class CocoDatasetTransform(Dataset):
         
         return image_tensor,box_tensor,label_tensor,image_id_tensor
     
+#before we convert the image into tensor we need to properly load the box and the list beasue tensor need to same shape for every box list but now in the box list we have different number of bounding box 
+        # so we need to convert the box list into the same shape for every image 
+        # so we need to create the simple function called custom collate function. so it will help us to combine the different shape of the box list into single shape 
+def custom_collate_fn(batch):
+    images=[]
+    boxes=[]
+    labels=[]
+    image_ids=[]
+    
+    for items in batch:
+        image,box,label,image_id=items
+        images.append(image)
+        boxes.append(box)
+        labels.append(label)
+        image_ids.append(image_id)
+        
+    return torch.stack(images),boxes,labels,image_ids# here we are using the torch.stack to stack the image into a single tensor , so now it will be in the shape of (batch_size,c,h,w),
+   # this simply we are stacking the image in single batch sizze 
+   
+
+    
+
+    
 # now we will use the dataloader to load the data into the model 
 def getdataloader(annotation_file,image_dir,batch_size=32,shuffle=True):
     dataset_loader=CocoDatasetTransform(annotation_file,image_dir)
-    dataloader=DataLoader(dataset_loader,batch_size=batch_size,shuffle=shuffle)
+    dataloader=DataLoader(dataset_loader,batch_size=batch_size,shuffle=shuffle,collate_fn=)
     return dataloader
         
         
