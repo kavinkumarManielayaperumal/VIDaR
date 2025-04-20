@@ -18,7 +18,7 @@ def image_viewer(annotation_file,image_path):
     print(image_info) # this will print the image info of the image id 36
     
     input_image=Image.open(image_path)
-    fig,(ax1,ax2)=plt.subplots(1,2)# this will create the two axis for the image
+   
     
     image_id=image_info['id'] # this will get the id of the image of paticulat the image id 36
     annotations_id=coco.getAnnIds(imgIds=image_id) # this getAnnIDs will map the image id to the annotation id
@@ -28,25 +28,15 @@ def image_viewer(annotation_file,image_path):
     for ann in annotation_load:
         bbox=ann['bbox']
         category_id=ann['category_id']
-        category_name=coco.loadCats([category_id])[0]['name']# its is like this category_data = [{'id': 3, 'name': 'cat'}] so its in list format so we have to get the first element of the list and then get the name of the category
         x,y,width,height=bbox
         box.append([x,y,width, height])
         label.append(category_id)
-        rect=plt.Rectangle((x,y),width,height,linewidth=2,edgecolor='r',facecolor='none')
-        ax2.text(x,y,f"{category_id},{category_name}",fontsize=10,color='green')
-        ax2.add_patch(rect) 
+        
     print(f"Box:{box}")
-    fig.suptitle("differece between the bounding box",fontsize=20)
-    ax1.imshow(input_image)
-    ax1.set_title("Original image")
-    ax1.axis('off')
-    
-    ax2.imshow(input_image)
-    ax2.set_title("Annotated image")
-    ax2.axis('off')
-    
-    #plt.show()
+    print(f"Label:{label}")
     return box,label,input_image
+
+
 class resized_images():
     def __init__(self,input_image:Image.Image,box,image_size=(224,224)):
         self.input_image=input_image
@@ -78,40 +68,46 @@ def visualize_resized_image(annotation_file,image_path):
     
     resized_image=resized_images(input_image,box,image_size=(224,224))
     image_resized,new_box=resized_image()
-    original_image=Image.open(image_path)
-    image_resized=Image.open(image_path)
+    #original_image=Image.open(image_path)
+    #image_resized=Image.open(image_path)
     
     fig,(ax1,ax2,ax3,ax4)=plt.subplots(1,4)
-    fig.suptittle("Resized image and bounding box",fontsize=20)
+    fig.suptitle("Resized image and bounding box",fontsize=20)
     for i in range(len(box)):
         x,y,width,height=box[i]
         
-        rect=plt.Rectangle((x,y),width,height,linewidth=2,edgecolor="r",fontsize="None")
+        rect=plt.Rectangle((x,y),width,height,linewidth=2,edgecolor="r",facecolor="None")
         category_name=coco.loadCats([label[i]])[0]["name"]
         ax2.text(x,y,f"{label[i]},{category_name}",fontsize=10,color="green")
         ax2.add_patch(rect)
         
     ax1.imshow(input_image)
-    ax1.set_title("original image")
+    ax1.set_title("original image",fontsize=5)
     ax1.axis("off")
         
     ax2.imshow(input_image)
-    ax2.set_title("original image with original bounding box ")
+    ax2.set_title("original image with original bounding box ",fontsize=5)
     ax2.axis("off")
+
         
         
     for i in range(len(new_box)):
         x,y,width,height=new_box[i]
-        rect=plt.Rectangle((x,y),width,height,linewidth=2,edgecolor="r",fontsize="None")
+        rect=plt.Rectangle((x,y),width,height,linewidth=2,edgecolor="r",facecolor="None")
+        category_name=coco.loadCats([label[i]])[0]["name"]
+        ax4.text(x,y,f"{label[i]},{category_name}",fontsize=10,color="green")
+        ax4.add_patch(rect)
         
         
         
-        ax3.imshow(image_resized)
-        ax3.set_title("Resized image")
-        ax3.axis("off")
+    ax3.imshow(image_resized)
+    ax3.set_title("Resized image",fontsize=5)
+    ax3.axis("off")
         
-        ax4.imshow(image_resized)
-        ax4.set_title("Resized image with resized bounding box")
+    ax4.imshow(image_resized)
+    ax4.set_title("Resized image with resized bounding box",fontsize=5)
+    ax4.axis("off")
+    plt.show()
         
         
         
@@ -125,4 +121,4 @@ if __name__=="__main__":
     annotation_file=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\annotations\instances_train2017.json"
     image_path=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\train2017\000000109355.jpg"
     
-    image_viewer(annotation_file,image_path)
+    visualize_resized_image(annotation_file,image_path)
