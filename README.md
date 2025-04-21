@@ -46,3 +46,46 @@ The project showcases how to:
    ```bash
    git clone https://github.com/yourusername/YOLOv5-COCO-ObjectDetection.git
    cd YOLOv5-COCO-ObjectDetection
+2. install dependencies:
+   ```bash
+   pip install -r requirements.txt
+3. Prepare the dataset (refer to the Data Preprocessing section).
+4. Train the model (YOLOv5):
+    ```bash
+	python train.py --img 640 --batch 16 --epochs 50 --data path/to/data.yaml --weights yolov5s.pt --cache
+5. Evaluate the model:
+   ```bash
+   python val.py --weights path/to/best_model.pt --data path/to/data.yaml --img 640
+
+## **Folder Structure**:
+   ```bash
+   /dataset
+    /images
+        /train
+            image1.jpg
+            image2.jpg
+            ...
+        /val
+            val_image1.jpg
+            val_image2.jpg
+            ...
+    /labels
+        /train
+            image1.txt
+            image2.txt
+            ...
+        /val
+            val_image1.txt
+            val_image2.txt
+            ...
+   /yolov5
+       /models
+       /data
+       /runs
+       /... (YOLOv5 files)
+
+
+
+
+
+ 
