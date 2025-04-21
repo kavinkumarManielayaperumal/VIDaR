@@ -17,22 +17,32 @@ device= torch.device('cuda'if torch.cuda.is_available()else 'cpu')
  # but in this case we are using the ultralytics library which is a wrapper around the pytorch model
 def yolo_model(getdataloader,device):
    model=YOLO("yolov8n.pt") # here we are using the yolov8n model which is the smalles model of the yolov8
-   for image_tensor,label_tensor,box_tensor , image_id_tensor in enumerate(getdataloader):
-       image_tensor=image_tensor.to_device(device)
-       label_tensor=label_tensor.to_device(device)
-       box_tensor=box_tensor.to_device(device)
-       image_id_tensor=image_id_tensor.to_device(device)
-       # now we will use the model to predict the bounding box and the label of the image
-       pred=model(image_tensor)
+   for image,label,box, image_id, target in enumerate(getdataloader):
+       image_tensor=image.to_device(device)
+       label_tensor=label.to_device(device)
+       box_tensor=box.to_device(device)
+       image_id_tensor=image_id.to_device(device)
+       target_tensor=target.to_device(device)
+    
+       model.to(device)
+       model.train(
+           data=getdataloader,
+              epochs=10,
+              batch_size=32,
+                imgsz=(640,640),
+                device=device,
+                project="yolo_model",
+                name="yolo_model",
+                exist_ok=True,
+                save_period=1,
+                save_dir="yolo_modle"
+                
+           
+       )
+    
+
        
-       # here we will get the bounding box and the label of the image
-       box=pred.xyxy[0]
-       for i in box:
-           x1,y1,x2,y2,conf,cls=i
-           print(f"Bounding box :{x1},{y1},{x2},{y2},confidence:{conf},class:{cls}")
-       pred.show()
-       pred.save("predictions")
-       
+  
        
        
        

@@ -37,9 +37,7 @@ class ResizeAndNormalization:
             new_heights=int(height*scale_y)
             
             new_box.append([new_x,new_y,new_widths, new_heights])
-            # now we will check the resized image and then bounding box in this functio 
-            print(f"Resized image size:{image_resized.size}")
-            print(f"Resized box size:{new_box}")
+          
         return image_resized,new_box
        
 
@@ -55,11 +53,6 @@ class CocoDatasetTransform(Dataset):
     def __getitem__(self ,index):
         image_id=self.image_id[index]
         image_info=self.coco.loadImgs(image_id)[0]
-        # we will  check the this image info is working or not 
-        i=1
-        if i==1:
-            print(f"Image info:{image_info}")
-            i=0
         image_file_name=image_info['file_name']
         image_path=os.path.join(self.image_dir,image_file_name)
         image_id=image_info["id"]
@@ -80,20 +73,26 @@ class CocoDatasetTransform(Dataset):
             bbox=ann['bbox']
             category_id=ann['category_id']
             x,y,width,height=bbox
-            print(f"{x,y,width,height}")
             box.append([x,y,width,height])
             label.append(category_id)
          
-        # i want to print the  the box list and so that we can see the shape of the box shape 
-        # i think now we got the  problem with the box shape 
-        #because the box shape not same demension as the for the every image beause  every image have different number of bounding box 
-        # so we we do somthing on that 
-        print(f"Box list{box}")
-        
-        
         resized=ResizeAndNormalization(input_image,box,image_size=(224,224))
         resized_image,resized_box=resized()
         
+        # now we need to covert the box and lablel into single tensor with center_x,center_y,width, height formar
+        # we will check the shape of the image tensor and the bow tensor and the label tensor and the image id tensor
+        #print(f"Image Tensor Shape:{image_tensor.shape}, Box Tensor shape:{box_tensor.shape},Label Tensor shape:{label_tensor.shape}, Image ID Tensor shape:{image_id_tensor.shape}")
+        img_w,img_h=resized_image.size
+        target=[]
+        for i in range(len(resized_box)):
+            x,y,width,height=resized_box[i]
+            cen_x=(x+width/2)/img_w
+            cen_y=(y+height/2)/img_h
+            width/=img_w
+            height/=img_h
+            target.append([label[i],cen_x,cen_y,width,height])
+            
+         
         
         
         # now eveything is done we will convert the image into tensor and normalize it 
@@ -102,6 +101,7 @@ class CocoDatasetTransform(Dataset):
         box_tensor=torch.tensor(resized_box,dtype=torch.float32)
         label_tensor=torch.tensor(label,dtype=torch.long)
         image_id_tensor=torch.tensor(image_id,dtype=torch.long)
+        target_tensor=torch.tensor(target,float())
         
         # we will normalization the imagr tensor to the range of 0-1
         image_tensor= image_tensor/255.0 # here we are using the normalization ,so everything is in the range of 0-1
@@ -109,25 +109,25 @@ class CocoDatasetTransform(Dataset):
         # we will check the shape of the image tensor and the bow tensor and the label tensor and the image id tensor
         #print(f"Image Tensor Shape:{image_tensor.shape}, Box Tensor shape:{box_tensor.shape},Label Tensor shape:{label_tensor.shape}, Image ID Tensor shape:{image_id_tensor.shape}")
         
-        return image_tensor,box_tensor,label_tensor,image_id_tensor
+        return image_tensor,box_tensor,label_tensor,image_id_tensor,target_tensor
     
-#before we convert the image into tensor we need to properly load the box and the list beasue tensor need to same shape for every box list but now in the box list we have different number of bounding box 
-        # so we need to convert the box list into the same shape for every image 
-        # so we need to create the simple function called custom collate function. so it will help us to combine the different shape of the box list into single shape 
+ 
 def custom_collate_fn(batch):
     images=[]
     boxes=[]
     labels=[]
     image_ids=[]
+    target=[]
     
     for items in batch:
-        image,box,label,image_id=items
+        image,box,label,image_id,target_tensor=items
         images.append(image)
         boxes.append(box)
         labels.append(label)
         image_ids.append(image_id)
-        
-    return torch.stack(images),boxes,labels,image_ids# here we are using the torch.stack to stack the image into a single tensor , so now it will be in the shape of (batch_size,c,h,w),
+        target.append(target_tensor)
+    
+    return torch.stack(images),boxes,labels,image_ids,target_tensor# here we are using the torch.stack to stack the image into a single tensor , so now it will be in the shape of (batch_size,c,h,w),
    # this simply we are stacking the image in single batch sizze 
    
 
@@ -137,7 +137,7 @@ def custom_collate_fn(batch):
 # now we will use the dataloader to load the data into the model 
 def getdataloader(annotation_file,image_dir,batch_size=32,shuffle=True):
     dataset_loader=CocoDatasetTransform(annotation_file,image_dir)
-    dataloader=DataLoader(dataset_loader,batch_size=batch_size,shuffle=shuffle,collate_fn=)
+    dataloader=DataLoader(dataset_loader,batch_size=batch_size,shuffle=shuffle,collate_fn=custom_collate_fn)
     return dataloader
         
         
@@ -156,11 +156,13 @@ if __name__== "__main__":
     shuffle=True
     dataloader=getdataloader(annotation_file,image_dir,batch_size=batch_size,shuffle=shuffle)
     for batch in dataloader:
-       images, boxes, labels, image_ids = batch
+       images, boxes, labels, image_ids,target_tensor = batch
        print(f"Images shape: {images.shape}")
-       print(f"Boxes shape: {boxes.shape}")
-       print(f"Labels shape: {labels.shape}")
-       print(f"Image IDs shape: {image_ids.shape}")
+       # box in the 
+       print(f"Boxes shape: {boxes}")
+       print(f"Labels shape: {labels}")
+       print(f"Image IDs shape: {image_ids}")
+       print(f"Target Tensor shape:{target_tensor}")
        break  # just get the first batch
     
     
