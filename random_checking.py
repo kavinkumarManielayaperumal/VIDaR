@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import PIL.Image as Image
+from matplotlib.patches import Rectangle
 # for the image converstion we 
 # Create a random RGB image (100x100 pixels, 3 channels)
 np.random.seed(42)
@@ -27,7 +28,7 @@ ax1.set_title("orginal random image")
 
 
 ax2.set_title("annotated image")
-ax2.add_patch(plt.Rectangle((10, 10), 20, 20, linewidth=1, edgecolor='r', facecolor='none'))
+ax2.add_patch(Rectangle((10, 10), 20, 20, linewidth=1, edgecolor='r', facecolor='none'))
 ax2.imshow(image_converstion)
 
 # Optional: Hide axis ticks for clean look

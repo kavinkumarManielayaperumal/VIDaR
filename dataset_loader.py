@@ -9,6 +9,7 @@ from torchvision import transforms as T
 import torch 
 def extract_image_and_bounding_box(annotation_file, image_dir):
     coco=COCO(annotation_file)
+    
     image_ids=list(coco.imgs.keys())
     print(f"Total number of images:{len(image_ids)}")
     
@@ -16,7 +17,7 @@ def extract_image_and_bounding_box(annotation_file, image_dir):
         image_info=coco.loadImgs(image_id)[0]
         file_name=image_info['file_name']
         image_path=os.path.join(image_dir, file_name)
-        
+        input_image=None
         # load the image in PIL format   
         input_image=Image.open(image_path)
         input_image=input_image.convert("RGB")# convert the image to RGB format

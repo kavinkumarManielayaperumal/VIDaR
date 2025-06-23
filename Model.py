@@ -41,11 +41,6 @@ def yolo_model(getdataloader,device):
        )
     
 
-       
-  
-       
-       
-       
 if __name__=="__main__":
     annotations_file=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\annotations\instances_train2017.json"
     images_path=r"E:\for practice game\object detection\ObjectDetectNet\dataset\archive (1)\coco2017\train2017" \

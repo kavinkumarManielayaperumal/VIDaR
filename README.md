@@ -78,11 +78,12 @@ The project showcases how to:
             val_image1.txt
             val_image2.txt
             ...
-   /yolov5
+    /yolov5
        /models
        /data
        /runs
-       /... (YOLOv5 files)
+       /... (YOLOv5 files).
+
 
 
 

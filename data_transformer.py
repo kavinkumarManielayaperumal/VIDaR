@@ -101,7 +101,7 @@ class CocoDatasetTransform(Dataset):
         box_tensor=torch.tensor(resized_box,dtype=torch.float32)
         label_tensor=torch.tensor(label,dtype=torch.long)
         image_id_tensor=torch.tensor(image_id,dtype=torch.long)
-        target_tensor=torch.tensor(target,float())
+        target_tensor=torch.tensor(target,dtype=torch.float32)
         
         # we will normalization the imagr tensor to the range of 0-1
         image_tensor= image_tensor/255.0 # here we are using the normalization ,so everything is in the range of 0-1
@@ -127,14 +127,12 @@ def custom_collate_fn(batch):
         image_ids.append(image_id)
         target.append(target_tensor)
     
-    return torch.stack(images),boxes,labels,image_ids,target_tensor# here we are using the torch.stack to stack the image into a single tensor , so now it will be in the shape of (batch_size,c,h,w),
+    return torch.stack(images),boxes,labels,image_ids,target# here we are using the torch.stack to stack the image into a single tensor , so now it will be in the shape of (batch_size,c,h,w),
    # this simply we are stacking the image in single batch sizze 
    
 
-    
 
-    
-# now we will use the dataloader to load the data into the model 
+# now we will use the dataloader to load the data into the model
 def getdataloader(annotation_file,image_dir,batch_size=32,shuffle=True):
     dataset_loader=CocoDatasetTransform(annotation_file,image_dir)
     dataloader=DataLoader(dataset_loader,batch_size=batch_size,shuffle=shuffle,collate_fn=custom_collate_fn)

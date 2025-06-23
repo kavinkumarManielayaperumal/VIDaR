@@ -6,7 +6,9 @@ from pycocotools.coco import COCO
 
 
 from PIL import Image # this pillow library is used to work with the images 
+
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle # this is used to draw the bounding box on the image 
 
 
 
@@ -76,7 +78,7 @@ def visualize_resized_image(annotation_file,image_path):
     for i in range(len(box)):
         x,y,width,height=box[i]
         
-        rect=plt.Rectangle((x,y),width,height,linewidth=2,edgecolor="r",facecolor="None")
+        rect=Rectangle((x,y),width,height,linewidth=2,edgecolor="r",facecolor="None")
         category_name=coco.loadCats([label[i]])[0]["name"]
         ax2.text(x,y,f"{label[i]},{category_name}",fontsize=10,color="green")
         ax2.add_patch(rect)
@@ -93,7 +95,7 @@ def visualize_resized_image(annotation_file,image_path):
         
     for i in range(len(new_box)):
         x,y,width,height=new_box[i]
-        rect=plt.Rectangle((x,y),width,height,linewidth=2,edgecolor="r",facecolor="None")
+        rect=Rectangle((x,y),width,height,linewidth=2,edgecolor="r",facecolor="None")
         category_name=coco.loadCats([label[i]])[0]["name"]
         ax4.text(x,y,f"{label[i]},{category_name}",fontsize=10,color="green")
         ax4.add_patch(rect)
