@@ -72,7 +72,7 @@ python detect_camera.py --model yolov8n.pt
 
 ### 4. Run Detection on Custom Dataset
 ```bash
-python train.py --img 640 --batch 16 --epochs 50 --data path/to/data.yaml --weights yolov5s.pt
+python train.py --img 640 --batch 16 --epochs 5000 --data path/to/data.yaml --weights yolov5s.pt
 ```
 
 ---
