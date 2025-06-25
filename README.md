@@ -1,92 +1,108 @@
-# **Object Detection with YOLO on the COCO Dataset**
+# **Real-Time Object Detection with YOLOv5 & YOLOv8**
 
 ## **Project Overview**
 
-This project focuses on implementing **object detection** using the **YOLO (You Only Look Once)** algorithm on the **COCO dataset**. The goal of the project was to understand how data from the COCO dataset can be preprocessed, formatted, and loaded into a **YOLO model** for object detection.
+This project presents a modular and extensible pipeline for real-time object detection using **YOLOv5** and **YOLOv8**, with support for camera-based input and custom datasets. Leveraging pretrained YOLO models (trained on the **COCO dataset**), the system processes incoming images from either static datasets or live camera feeds, feeding them through a customized preprocessing pipeline into the YOLO model.
 
-The project showcases how to:
-- **Load and preprocess the COCO dataset**.
-- **Extract and normalize bounding boxes** from COCO annotations.
-- **Convert the dataset into the YOLO format** for object detection.
-- **Train a YOLO model** (theoretically, if required) on the custom data.
+## **Motivation**
 
-## **Key Concepts & Steps**:
-1. **Dataset Loading**:
-   - The COCO dataset consists of images with annotations that define objects in the form of **bounding boxes**.
-   - We manually loaded the **COCO annotations** and reshaped them into **YOLO format** (class ID, normalized bounding box coordinates).
-   
-2. **Data Preprocessing**:
-   - **Resized images** to a common size (224x224).
-   - **Normalized bounding boxes**: The bounding boxes were rescaled to be **relative** to the image size (in YOLO format, `[x_center, y_center, width, height]`).
-   - **PyTorch transforms** were applied to convert images to tensors, normalize them, and apply any necessary augmentations.
+Initially, the goal was to build an object detection model from scratch. However, the complexity and training demands of such deep neural networks make this approach highly time-consuming. Instead, this project uses **YOLO (You Only Look Once)**, a state-of-the-art, real-time object detection architecture. By developing a **custom data loader**, the project bridges raw image input (from files or camera) and model inference with minimal setup.
 
-3. **YOLO Data Conversion**:
-   - The **COCO annotations** were converted into **YOLO format** for each image. This includes converting bounding box coordinates into **center-based format** and **rescaling them**.
+## **Key Features**
 
-4. **YOLOv5 Integration**:
-   - We used **YOLOv5** for object detection, which was **pre-trained** on the COCO dataset. The project provides a step-by-step guide for **fine-tuning YOLOv5** with the COCO dataset annotations.
-   - Instructions for **training** the model and **evaluating** its performance are included.
+- 🔧 **Custom Data Loader**: Automatically preprocesses images (resizing, normalizing, annotation handling), and formats them for YOLO input.
+- 📷 **Camera Integration**: Supports live image capture and real-time detection using webcam or external camera devices.
+- 🧠 **YOLOv5 & YOLOv8 Support**: Flexible architecture supporting both versions with pretrained weights on COCO.
+- 📁 **Dataset Flexibility**: Works with COCO-style datasets or custom annotated images in YOLO format.
 
-## **Technologies Used**:
+---
+
+## **Pipeline Components**
+
+### 1. **Data Loading & Annotation Handling**
+- Loads images from dataset folders or captures from a live camera.
+- If using dataset images:
+  - Supports COCO-format annotations and converts them to YOLO format.
+  - If annotations are missing, allows for manual labeling.
+- Converts bounding boxes into YOLO-style normalized format:  
+  `[class_id, x_center, y_center, width, height]`
+
+### 2. **Image Preprocessing**
+- Resizes all input images to a fixed resolution (e.g., `640x640`) as required by the YOLO architecture.
+- Applies PyTorch transforms:
+  - Tensor conversion
+  - Normalization
+  - Optional data augmentation
+
+### 3. **Model Inference**
+- Uses pretrained **YOLOv5** or **YOLOv8** models (trained on COCO dataset).
+- Accepts tensor images from the custom data loader.
+- Outputs bounding boxes, class predictions, and confidence scores.
+
+---
+
+## **Technologies Used**
+
 - **Python**
 - **PyTorch**
-- **torchvision** (for models like YOLO)
-- **COCO Dataset**
-- **YOLOv5**
-- **pycocotools** (for COCO dataset handling)
+- **Ultralytics YOLOv5 / YOLOv8**
+- **OpenCV** (for camera integration)
+- **pycocotools** (for COCO dataset parsing)
+- **Matplotlib / Seaborn** (for visualization)
 
-## **How the YOLO Model Was Trained**:
-1. **Preprocessing**: COCO annotations were converted into the YOLO format (class ID, bounding boxes with center coordinates).
-2. **Dataset Loading**: The processed images and annotations were loaded into **PyTorch DataLoader**.
-3. **Model Fine-Tuning**: YOLOv5 was fine-tuned on the custom dataset for object detection.
-4. **Evaluation**: Model performance was evaluated using standard **precision**, **recall**, and **mAP** metrics on a validation set.
+---
 
-## **How to Run**:
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/YOLOv5-COCO-ObjectDetection.git
-   cd YOLOv5-COCO-ObjectDetection
-2. install dependencies:
-   ```bash
-   pip install -r requirements.txt
-3. Prepare the dataset (refer to the Data Preprocessing section).
-4. Train the model (YOLOv5):
-    ```bash
-	python train.py --img 640 --batch 16 --epochs 50 --data path/to/data.yaml --weights yolov5s.pt --cache
-5. Evaluate the model:
-   ```bash
-   python val.py --weights path/to/best_model.pt --data path/to/data.yaml --img 640
+## **How to Run**
 
-## **Folder Structure**:
-   ```bash
-   /dataset
-    /images
-        /train
-            image1.jpg
-            image2.jpg
-            ...
-        /val
-            val_image1.jpg
-            val_image2.jpg
-            ...
-    /labels
-        /train
-            image1.txt
-            image2.txt
-            ...
-        /val
-            val_image1.txt
-            val_image2.txt
-            ...
-    /yolov5
-       /models
-       /data
-       /runs
-       /... (YOLOv5 files).
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/VIDaR.git
+cd VIDaR
+```
 
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
+### 3. Run Detection on Camera Input
+```bash
+python detect_camera.py --model yolov8n.pt
+```
 
+### 4. Run Detection on Custom Dataset
+```bash
+python train.py --img 640 --batch 16 --epochs 50 --data path/to/data.yaml --weights yolov5s.pt
+```
 
+---
 
+## **Folder Structure**
 
- 
+```bash
+/project-root
+│
+├── data_loader/
+│   └── custom_loader.py       # Custom dataset + camera loader
+│
+├── models/
+│   └── yolov5/                # YOLOv5 files
+│   └── yolov8/                # YOLOv8 integration
+│
+├── datasets/
+│   ├── images/
+│   ├── labels/
+│
+├── detect_camera.py          # Live camera detection script
+├── train.py                  # Model training script
+├── README.md
+└── requirements.txt
+```
+
+---
+
+## **Next Steps**
+
+- Expand support for instance segmentation
+- Integrate edge-device compatibility (e.g., Jetson Nano, Raspberry Pi)
+- Add GUI interface for live annotation and feedback
